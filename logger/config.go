@@ -2,12 +2,15 @@ package echologger
 
 import (
 	"fmt"
-	"io"
 	"strings"
 	"time"
 
 	"github.com/fatih/color"
 )
+
+type loggerOutput interface {
+	Printf(string, ...interface{}) (int, error)
+}
 
 type EchoLoggerConfig struct {
 	Format     string `yaml:"format"`
@@ -15,13 +18,13 @@ type EchoLoggerConfig struct {
 
 	DisableColors bool `yaml:"colors"`
 
-	Output  io.Writer
-	colorer *color.Color
+	output loggerOutput
 
 	TimeZone         string `yaml:"time_zone"`
 	timeZoneLocation *time.Location
 
 	enableLatency bool
+	tags          []string
 }
 
 var (
@@ -30,8 +33,7 @@ var (
 		TimeFormat:    "15:04:05",
 		TimeZone:      "Local",
 		DisableColors: true,
-		Output:        color.Output,
-		colorer:       color.New(),
+		output:        color.New(),
 	}
 )
 
@@ -50,12 +52,8 @@ func configDefault(config ...EchoLoggerConfig) EchoLoggerConfig {
 		cfg.TimeFormat = DefaultEchoLoggerConfig.TimeFormat
 	}
 
-	if cfg.Output == nil {
-		cfg.Output = DefaultEchoLoggerConfig.Output
-	}
-
-	if cfg.colorer == nil {
-		cfg.colorer = DefaultEchoLoggerConfig.colorer
+	if cfg.output == nil {
+		cfg.output = DefaultEchoLoggerConfig.output
 	}
 
 	if strings.Contains(cfg.Format, "${latency}") {
@@ -68,6 +66,8 @@ func configDefault(config ...EchoLoggerConfig) EchoLoggerConfig {
 	} else {
 		cfg.timeZoneLocation = tz
 	}
+
+	cfg.tags = findTags(cfg.Format)
 
 	return cfg
 }
