@@ -2,7 +2,6 @@ package echologger
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/fatih/color"
