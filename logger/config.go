@@ -17,7 +17,8 @@ type EchoLoggerConfig struct {
 
 	DisableColors bool `yaml:"colors"`
 
-	output loggerOutput
+	output         loggerOutput
+	DisablePadding bool `yaml:"padding"`
 
 	TimeZone         string `yaml:"time_zone"`
 	timeZoneLocation *time.Location
@@ -29,10 +30,10 @@ type EchoLoggerConfig struct {
 var (
 	DefaultEchoLoggerConfig = EchoLoggerConfig{
 
-		Format:        fmt.Sprintf("%v | %v | %v | %v | %v | %v\n", TagTime, TagStatus, TagLatency, TagHost, TagMethod, TagPath),
+		Format:        fmt.Sprintf("%v | %v | %v | %v | %v | %v %v\n", TagTime, TagStatus, TagLatency, TagHost, TagMethod, TagPath, TagError),
 		TimeFormat:    "15:04:05",
 		TimeZone:      "Local",
-		DisableColors: true,
+		DisableColors: false,
 		output:        color.New(),
 	}
 )
