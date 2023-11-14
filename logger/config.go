@@ -39,7 +39,7 @@ var (
 )
 
 func configDefault(config ...EchoLoggerConfig) EchoLoggerConfig {
-	if len(config) < 1 {
+	if len(config) != 1 {
 		return DefaultEchoLoggerConfig
 	}
 
