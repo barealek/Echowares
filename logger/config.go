@@ -57,18 +57,5 @@ func configDefault(config ...EchoLoggerConfig) EchoLoggerConfig {
 		cfg.output = DefaultEchoLoggerConfig.output
 	}
 
-	if strings.Contains(cfg.Format, "${latency}") {
-		cfg.enableLatency = true
-	}
-
-	tz, err := time.LoadLocation(cfg.TimeZone)
-	if err != nil || tz == nil {
-		cfg.timeZoneLocation = time.Local
-	} else {
-		cfg.timeZoneLocation = tz
-	}
-
-	cfg.tags = findTags(cfg.Format)
-
 	return cfg
 }
