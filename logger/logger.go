@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/labstack/echo/v4"
 )
 
@@ -45,14 +46,35 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 				start = time.Now()
 			}
 
-			next(c)
+			errChain := next(c)
+
+			var (
+				statusCode  int
+				errorString string
+			)
+
+			if errChain != nil {
+				fmt.Printf("errChain: %v\n", errChain)
+				var err error
+				parts := strings.Split(errChain.Error(), ", ")
+
+				codeParts := strings.Split(strings.TrimSpace(parts[0]), "=")
+				messageParts := strings.Split(strings.TrimSpace(parts[1]), "=")
+
+				statusCode, err = strconv.Atoi(codeParts[1])
+				if err != nil {
+					statusCode = 500
+				}
+				errorString = messageParts[1]
+			} else {
+				statusCode = c.Response().Status
+			}
 
 			if cfg.enableLatency {
 				end = time.Now()
 			}
 
 			tagsToReplace := map[string]string{}
-			fmt.Printf("cfg.tags: %v\n", cfg.tags)
 
 			for _, tag := range cfg.tags {
 				switch tag {
@@ -63,19 +85,19 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 				case TagTime:
 					tagsToReplace[tag] = timestamp.Load().(string)
 				case TagStatus:
-					tagsToReplace[tag] = strconv.Itoa(c.Response().Status)
+					tagsToReplace[tag] = strconv.Itoa(statusCode)
 				case TagMethod:
 					tagsToReplace[tag] = c.Request().Method
 				case TagPath:
 					tagsToReplace[tag] = c.Request().URL.Path
 				case TagHost:
-					tagsToReplace[tag] = c.Request().Host
+					tagsToReplace[tag] = c.RealIP()
+				case TagError:
+					tagsToReplace[tag] = color.RedString(errorString)
 				}
 			}
 
-			fmt.Printf("tagsToReplace: %v\n", tagsToReplace)
-
-			log := replaceAll(cfg.Format, tagsToReplace)
+			log := formatLog(cfg.Format, tagsToReplace, errorString, !cfg.DisablePadding, !cfg.DisableColors)
 
 			cfg.output.Printf(log)
 
