@@ -1,7 +1,6 @@
 package echologger
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -47,28 +46,7 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 			}
 
 			errChain := next(c)
-
-			var (
-				statusCode  int
-				errorString string
-			)
-
-			if errChain != nil {
-				fmt.Printf("errChain: %v\n", errChain)
-				var err error
-				parts := strings.Split(errChain.Error(), ", ")
-
-				codeParts := strings.Split(strings.TrimSpace(parts[0]), "=")
-				messageParts := strings.Split(strings.TrimSpace(parts[1]), "=")
-
-				statusCode, err = strconv.Atoi(codeParts[1])
-				if err != nil {
-					statusCode = 500
-				}
-				errorString = messageParts[1]
-			} else {
-				statusCode = c.Response().Status
-			}
+			// next(c)
 
 			if cfg.enableLatency {
 				end = time.Now()
@@ -85,7 +63,7 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 				case TagTime:
 					tagsToReplace[tag] = timestamp.Load().(string)
 				case TagStatus:
-					tagsToReplace[tag] = strconv.Itoa(statusCode)
+					tagsToReplace[tag] = strconv.Itoa(c.Response().Status)
 				case TagMethod:
 					tagsToReplace[tag] = c.Request().Method
 				case TagPath:
@@ -93,11 +71,15 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 				case TagHost:
 					tagsToReplace[tag] = c.RealIP()
 				case TagError:
-					tagsToReplace[tag] = color.RedString(errorString)
+					if errChain != nil {
+						tagsToReplace[tag] = color.RedString(errChain.Error())
+					} else {
+						tagsToReplace[tag] = ""
+					}
 				}
 			}
 
-			log := formatLog(cfg.Format, tagsToReplace, errorString, !cfg.DisablePadding, !cfg.DisableColors)
+			log := formatLog(cfg.Format, tagsToReplace, !cfg.DisablePadding, !cfg.DisableColors)
 
 			cfg.output.Printf(log)
 
