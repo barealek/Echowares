@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf8"
-	"utf8"
 
 	"github.com/fatih/color"
 )
