@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -12,7 +11,6 @@ import (
 
 func main() {
 	e := echo.New()
-	fmt.Println("hi")
 
 	e.Use(echologger.New())
 
