@@ -13,12 +13,14 @@ func formatLog(s string, replace map[string]string, shouldPad, shouldColor bool)
 
 	if shouldColor {
 		if replace[TagMethod] != "" {
-			code := replace[TagMethod]
-			s = strings.Replace(s, TagMethod, methodColor(code), -1)
+			s = strings.Replace(s, TagMethod, methodColor(replace[TagMethod]), -1)
 		}
 		if replace[TagStatus] != "" {
 			code, _ := strconv.Atoi(replace[TagStatus])
 			s = strings.Replace(s, TagStatus, statusColor(code), -1)
+		}
+		if replace[TagError] != "" {
+			s = strings.Replace(s, TagError, color.RedString(replace[TagError]), -1)
 		}
 	}
 
@@ -32,41 +34,48 @@ func formatLog(s string, replace map[string]string, shouldPad, shouldColor bool)
 			s = strings.Replace(s, k, v, -1)
 		}
 	}
+
 	return s
 }
 
 func statusColor(code int) string {
+	var col color.Attribute
 	switch {
 	case code >= http.StatusOK && code < http.StatusMultipleChoices:
-		return color.GreenString(strconv.Itoa(code))
+		col = color.FgHiGreen
 	case code >= http.StatusMultipleChoices && code < http.StatusBadRequest:
-		return color.BlueString(strconv.Itoa(code))
+		col = color.FgBlue
 	case code >= http.StatusBadRequest && code < http.StatusInternalServerError:
-		return color.YellowString(strconv.Itoa(code))
+		col = color.FgYellow
 	default:
-		return color.RedString(strconv.Itoa(code))
+		col = color.FgRed
 	}
+
+	return color.New(col).Sprintf(TagStatus)
 }
 
 func methodColor(method string) string {
+	var col color.Attribute
 	switch method {
 	case http.MethodGet:
-		return color.CyanString(method)
+		col = color.FgCyan
 	case http.MethodPost:
-		return color.GreenString(method)
+		col = color.FgGreen
 	case http.MethodPut:
-		return color.YellowString(method)
+		col = color.FgYellow
 	case http.MethodDelete:
-		return color.RedString(method)
+		col = color.FgRed
 	case http.MethodPatch:
-		return color.MagentaString(method)
+		col = color.FgMagenta
 	case http.MethodHead:
-		return color.WhiteString(method)
+		col = color.FgWhite
 	case http.MethodOptions:
-		return color.BlueString(method)
+		col = color.FgBlue
 	default:
-		return color.WhiteString(method)
+		col = color.FgWhite
 	}
+
+	return color.New(col).Sprint(TagMethod)
 }
 
 func pad(s string, tag string) string {
