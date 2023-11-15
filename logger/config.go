@@ -30,7 +30,7 @@ type EchoLoggerConfig struct {
 var (
 	DefaultEchoLoggerConfig = EchoLoggerConfig{
 
-		Format:        fmt.Sprintf("%v | %v | %v | %v | %v | %v %v\n", TagTime, TagStatus, TagLatency, TagHost, TagMethod, TagPath, TagError),
+		Format:        fmt.Sprintf("%v | %v | %v | %v | %v | %v  %v\n", TagTime, TagStatus, TagLatency, TagHost, TagMethod, TagPath, TagError),
 		TimeFormat:    "15:04:05",
 		TimeZone:      "Local",
 		DisableColors: false,
