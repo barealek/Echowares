@@ -2,7 +2,9 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/barealek/echowares/echologger"
 	"github.com/labstack/echo/v4"
@@ -10,6 +12,7 @@ import (
 
 func main() {
 	e := echo.New()
+	fmt.Println("hi")
 
 	e.Use(echologger.New())
 
@@ -25,5 +28,10 @@ func main() {
 		return c.Redirect(http.StatusPermanentRedirect, "/")
 	})
 
-	e.Logger.Fatal(e.Start("0.0.0.0:52333"))
+	e.GET("/waitalittle", func(c echo.Context) error {
+		time.Sleep(2 * time.Millisecond)
+		return c.String(http.StatusCreated, "Hello, World!")
+	})
+
+	e.Logger.Fatal(e.Start(":3000"))
 }
