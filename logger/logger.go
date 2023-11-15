@@ -1,7 +1,9 @@
 package echologger
 
 import (
+	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -39,14 +41,31 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 
-			var start, end time.Time
+			var (
+				start, end time.Time
+				httpError  *echo.HTTPError
+			)
 
 			if cfg.enableLatency {
 				start = time.Now()
 			}
 
 			errChain := next(c)
-			// next(c)
+			if errChain != nil {
+				var code int
+				var message string
+				matched, _ := regexp.MatchString(`code=\d+, message=.+`, errChain.Error())
+				if matched {
+					fmt.Sscanf(errChain.Error(), "code=%d, message=%s", &code, &message)
+				} else {
+					code = 500
+					message = errChain.Error()
+				}
+				httpError = &echo.HTTPError{
+					Code:    code,
+					Message: message,
+				}
+			}
 
 			if cfg.enableLatency {
 				end = time.Now()
@@ -56,23 +75,35 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 
 			for _, tag := range cfg.tags {
 				switch tag {
+
 				case TagPid:
 					tagsToReplace[tag] = pid
+
 				case TagLatency:
 					tagsToReplace[tag] = end.Sub(start).String()
+
 				case TagTime:
 					tagsToReplace[tag] = timestamp.Load().(string)
+
 				case TagStatus:
-					tagsToReplace[tag] = strconv.Itoa(c.Response().Status)
+					if httpError == nil {
+						tagsToReplace[tag] = strconv.Itoa(c.Response().Status)
+					} else {
+						tagsToReplace[tag] = strconv.Itoa(httpError.Code)
+					}
+
 				case TagMethod:
 					tagsToReplace[tag] = c.Request().Method
+
 				case TagPath:
 					tagsToReplace[tag] = c.Request().URL.Path
+
 				case TagHost:
 					tagsToReplace[tag] = c.RealIP()
+
 				case TagError:
-					if errChain != nil {
-						tagsToReplace[tag] = color.RedString(errChain.Error())
+					if httpError != nil {
+						tagsToReplace[tag] = color.RedString(httpError.Message.(string))
 					} else {
 						tagsToReplace[tag] = ""
 					}
@@ -83,7 +114,7 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 
 			cfg.output.Printf(log)
 
-			return nil
+			return httpError
 		}
 
 	}
