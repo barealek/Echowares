@@ -8,7 +8,7 @@ import (
 	"github.com/fatih/color"
 )
 
-func formatLog(s string, replace map[string]string, errorString string, shouldPad, shouldColor bool) string {
+func formatLog(s string, replace map[string]string, shouldPad, shouldColor bool) string {
 
 	if shouldColor {
 		if replace[TagMethod] != "" {
