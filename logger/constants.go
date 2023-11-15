@@ -10,7 +10,7 @@ var (
 	TagPath    = "${path}"
 	TagError   = "${error}"
 
-	spaceLatency          = 10
+	spaceLatency          = 8
 	spaceTime             = 8  // 15:04:05 = 8 chars
 	spacePid              = 5  // 65535 = 5 chars
 	spaceStatus           = 3  // 200, 404, 500 = 3 chars
