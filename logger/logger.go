@@ -9,7 +9,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/fatih/color"
 	"github.com/labstack/echo/v4"
 )
 
@@ -103,13 +102,12 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 
 				case TagError:
 					if httpError != nil {
-						tagsToReplace[tag] = color.RedString(httpError.Message.(string))
+						tagsToReplace[tag] = httpError.Message.(string)
 					} else {
 						tagsToReplace[tag] = ""
 					}
 				}
 			}
-
 			log := formatLog(cfg.Format, tagsToReplace, !cfg.DisablePadding, !cfg.DisableColors)
 
 			cfg.output.Printf(log)
