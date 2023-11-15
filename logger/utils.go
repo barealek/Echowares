@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"unicode/utf8"
+	"utf8"
 
 	"github.com/fatih/color"
 )
@@ -97,17 +99,19 @@ func pad(s string, tag string) string {
 }
 
 func padLeft(s string, n int) string {
-	if len(s) >= n {
+	strlen := utf8.RuneCountInString(s)
+	if strlen >= n {
 		return s
 	}
-	return strings.Repeat(" ", n-len(s)) + s
+	return strings.Repeat(" ", n-strlen) + s
 }
 
 func padRight(s string, n int) string {
-	if len(s) > n {
+	strlen := utf8.RuneCountInString(s)
+	if strlen > n {
 		return s
 	}
-	return s + strings.Repeat(" ", n-len(s))
+	return s + strings.Repeat(" ", n-strlen)
 }
 
 func findTags(format string) []string {
