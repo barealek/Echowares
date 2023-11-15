@@ -1,6 +1,6 @@
 package echologger
 
-var (
+const (
 	TagLatency = "${latency}"
 	TagTime    = "${time}"
 	TagPid     = "${pid}"
