@@ -86,8 +86,6 @@ func pad(s string, tag string) string {
 		return padLeft(s, spaceTime)
 	case TagPid:
 		return padLeft(s, spacePid)
-	case TagStatus:
-		return padLeft(s, spaceStatus)
 	case TagMethod:
 		return padRight(s, spaceMethod)
 	case TagHost:
