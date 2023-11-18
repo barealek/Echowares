@@ -12,11 +12,7 @@ import (
 func main() {
 	e := echo.New()
 
-	loggerConf := echologger.DefaultEchoLoggerConfig
-	loggerConf.DisableColors = true
-	loggerConf.DisablePadding = true
-
-	e.Use(echologger.New(loggerConf))
+	e.Use(echologger.New())
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
