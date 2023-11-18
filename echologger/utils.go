@@ -20,7 +20,7 @@ func formatLog(s string, replace map[string]string, shouldPad, shouldColor bool)
 			s = strings.Replace(s, TagStatus, statusColor(code), -1)
 		}
 		if replace[TagError] != "" {
-			s = strings.Replace(s, TagError, color.RedString(replace[TagError]), -1)
+			s = strings.Replace(s, TagError, color.RedString("| "+replace[TagError]), -1)
 		}
 	}
 
