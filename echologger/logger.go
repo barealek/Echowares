@@ -55,7 +55,9 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 				var message string
 				matched, _ := regexp.MatchString(`code=\d+, message=.+`, errChain.Error())
 				if matched {
-					fmt.Sscanf(errChain.Error(), "code=%d, message=%s", &code, &message)
+					parts := strings.SplitN(errChain.Error(), "message=", 2)
+					fmt.Sscanf(parts[0], "code=%d,", &code)
+					message = parts[1]
 				} else {
 					code = 500
 					message = errChain.Error()
