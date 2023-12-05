@@ -35,7 +35,7 @@ func formatLog(s string, replace map[string]string, shouldPad, shouldColor bool)
 		}
 	}
 
-	return s
+	return removeExcessPadding(s)
 }
 
 func statusColor(code int) string {
@@ -130,4 +130,9 @@ func findTags(format string) []string {
 	}
 
 	return tags
+}
+
+func removeExcessPadding(s string) string {
+	// Remove all leading and trailing spaces
+	return strings.TrimSpace(s) + "\n"
 }
