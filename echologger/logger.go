@@ -1,7 +1,6 @@
 package echologger
 
 import (
-	"fmt"
 	"os"
 	"regexp"
 	"strconv"
@@ -36,8 +35,10 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 
 	// Get PID of current process
 	pid := strconv.Itoa(os.Getpid())
+	regex, _ := regexp.Compile(`code=\d+, message=(.+)`)
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
+
 		return func(c echo.Context) error {
 
 			var (
@@ -51,16 +52,15 @@ func New(config ...EchoLoggerConfig) echo.MiddlewareFunc {
 
 			errChain := next(c)
 			if errChain != nil {
-				var code int
-				var message string
-				matched, _ := regexp.MatchString(`code=\d+, message=.+`, errChain.Error())
+				errString := errChain.Error()
+
+				var code int = 500
+				var message string = errString
+
+				matched := regex.MatchString(errString)
 				if matched {
-					parts := strings.SplitN(errChain.Error(), "message=", 2)
-					fmt.Sscanf(parts[0], "code=%d,", &code)
+					parts := regex.FindStringSubmatch(errString)
 					message = parts[1]
-				} else {
-					code = 500
-					message = errChain.Error()
 				}
 				httpError = &echo.HTTPError{
 					Code:    code,
