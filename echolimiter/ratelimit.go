@@ -15,7 +15,7 @@ type visitor struct {
 
 type RateLimiter func(next echo.HandlerFunc) echo.HandlerFunc
 
-func NewRateLimiter(opts ...OptFunction) func(next echo.HandlerFunc) echo.HandlerFunc {
+func NewRateLimiter(opts ...OptFunction) RateLimiter {
 	options := defaultOptions()
 	for _, opt := range opts {
 		opt(options)
