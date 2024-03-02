@@ -11,4 +11,5 @@ Echowares is a collection of some of my middlewares for the microwebframework [E
 
 Echowares currently contains:
 - [x] Logging middleware, inspired by [Fiber](https://github.com/gofiber/fiber)'s built-in logger
+- [x] Rate limiter middleware. Easily rate limit your routes with a simple, configurable middleware.
 - ... More will be added in the future.
